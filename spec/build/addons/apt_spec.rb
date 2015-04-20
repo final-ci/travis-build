@@ -8,7 +8,7 @@ describe Travis::Build::Addons::Apt, :sexp do
   let(:addon)             { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   let(:config)            { {} }
   let(:source_whitelist)  { [{ alias: 'testing', sourceline: 'deb http://example.com/deb repo main' }] }
-  let(:package_whitelist) { %w(git curl) }
+  let(:package_whitelist) { %w(git curl valgrind) }
   subject                 { sh.to_sexp }
 
   before :all do
@@ -104,6 +104,13 @@ describe Travis::Build::Addons::Apt, :sexp do
       it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
     end
 
+    context 'with mixed arrays and delimited strings' do
+      let(:config) { { packages: ['git,curl darkcoin', 'valgrind'] } }
+
+      it { should include_sexp [:cmd, apt_get_install_command('git', 'curl', 'valgrind'), echo: true, timing: true] }
+      it { should_not include_sexp [:cmd, apt_get_install_command('darkcoin'), echo: true, timing: true] }
+    end
+
     context 'with multiple packages, some whitelisted' do
       let(:config) { { packages: ['git', 'curl', 'darkcoin'] } }
 
@@ -166,11 +173,20 @@ describe Travis::Build::Addons::Apt, :sexp do
       "curl -sSL #{key_url.inspect} | sudo -E apt-key add -"
     end
 
-    context 'with multiple whitelisted sources' do
+    context 'with whitelisted source' do
       let(:config) { { sources: ['deadsnakes-precise'] } }
 
       it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_key_add_command(deadsnakes['key_url']), echo: true, assert: true, timing: true] }
+    end
+
+    context 'with mixed arrays and delimited strings' do
+      let(:config) { { sources: ['deadsnakes-precise,   evilbadthings', 'packagecloud-precise'] } }
+
+      it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
+      it { should_not include_sexp [:cmd, apt_key_add_command(deadsnakes['key_url']), echo: true, assert: true, timing: true] }
+      it { should include_sexp [:cmd, apt_add_repository_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
+      it { should include_sexp [:cmd, apt_key_add_command(packagecloud['key_url']), echo: true, assert: true, timing: true] }
     end
 
     context 'with multiple sources, some whitelisted' do

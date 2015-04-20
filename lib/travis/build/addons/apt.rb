@@ -132,11 +132,11 @@ module Travis
           end
 
           def config_sources
-            @config_sources ||= Array(config[:sources]).flatten.compact
+            @config_sources ||= normalized_array(:sources)
           end
 
           def config_packages
-            @config_packages ||= Array(config[:packages]).flatten.compact
+            @config_packages ||= normalized_array(:packages)
           end
 
           def package_whitelist
@@ -145,6 +145,16 @@ module Travis
 
           def source_whitelist
             ::Travis::Build::Addons::Apt.source_whitelist
+          end
+
+          def normalized_array(key)
+            Array(config[key]).map do |entry|
+              if entry.respond_to?(:split)
+                entry.split(/[\s,]+/).map(&:strip).reject(&:empty?)
+              else
+                entry
+              end
+            end.flatten.compact
           end
       end
     end
