@@ -1,4 +1,5 @@
 require 'travis/build/addons/base'
+require 'core_ext/array/normalized'
 
 module Travis
   module Build
@@ -132,11 +133,11 @@ module Travis
           end
 
           def config_sources
-            @config_sources ||= normalized_array(:sources)
+            @config_sources ||= (config[:sources] || '').normalized_array
           end
 
           def config_packages
-            @config_packages ||= normalized_array(:packages)
+            @config_packages ||= (config[:packages] || '').normalized_array
           end
 
           def package_whitelist
@@ -145,16 +146,6 @@ module Travis
 
           def source_whitelist
             ::Travis::Build::Addons::Apt.source_whitelist
-          end
-
-          def normalized_array(key)
-            Array(config[key]).map do |entry|
-              if entry.respond_to?(:split)
-                entry.split(/[\s,]+/).map(&:strip).reject(&:empty?)
-              else
-                entry
-              end
-            end.flatten.compact
           end
       end
     end
