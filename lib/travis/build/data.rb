@@ -107,7 +107,7 @@ module Travis
       end
 
       def source_host
-        source_url =~ %r(^(?:https?|git)(?:://|@)([^/]*?)(?:/|:)) && $1
+        source_url =~ %r(^(?:https?|ssh://git|git)(?:://|@)([^/]*?)(?:/|:)) && $1
       end
 
       def api_url
