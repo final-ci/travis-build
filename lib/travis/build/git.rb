@@ -21,7 +21,9 @@ module Travis
         disable_interactive_auth
         install_ssh_key
 
-        if use_tarball?
+        if do_not_clone?
+          #intentionaly empty
+        elsif use_tarball?
           download_tarball
         else
           clone_or_fetch
@@ -63,6 +65,10 @@ module Travis
 
         def submodules?
           config[:git][:submodules]
+        end
+
+        def do_not_clone?
+          config[:git][:no_clone]
         end
 
         def use_tarball?
