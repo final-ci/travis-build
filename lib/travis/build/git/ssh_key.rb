@@ -11,10 +11,6 @@ module Travis
           sh.chmod 600, '~/.ssh/id_rsa', echo: false
           sh.raw 'eval `ssh-agent` &> /dev/null'
           sh.raw 'ssh-add ~/.ssh/id_rsa &> /dev/null'
-
-          # BatchMode - If set to 'yes', passphrase/password querying will be disabled.
-          # TODO ... how to solve StrictHostKeyChecking correctly? deploy a known_hosts file?
-          sh.file '~/.ssh/config', "Host #{data.source_host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n", append: true
         end
 
         private

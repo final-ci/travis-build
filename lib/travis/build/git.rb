@@ -37,6 +37,10 @@ module Travis
 
         def disable_interactive_auth
           sh.export 'GIT_ASKPASS', 'echo', :echo => false
+
+          # BatchMode - If set to 'yes', passphrase/password querying will be disabled.
+          # TODO ... how to solve StrictHostKeyChecking correctly? deploy a known_hosts file?
+          sh.file '~/.ssh/config', "Host #{data.source_host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n", append: true
         end
 
         def install_ssh_key
