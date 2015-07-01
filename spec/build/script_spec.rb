@@ -45,6 +45,12 @@ describe Travis::Build::Script, :sexp do
     should include_sexp [:cmd, /casher push/, :*]
   end
 
+  it 'uses :os config value to select proper header*.sh file' do
+    payload[:config][:os]='windows'
+    expect(code).to match %r(chown +Administrator:Users.*\.ssh/config)
+    expect(code).to match %r(chmod.*\.ssh/config)
+  end
+
   describe 'does not exlode' do
     it 'on script being true' do
       payload[:config][:script] = true

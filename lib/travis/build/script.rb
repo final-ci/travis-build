@@ -88,7 +88,11 @@ module Travis
         end
 
         def header
-          sh.raw template('header.sh', build_dir: BUILD_DIR), pos: 0
+          if config[:os] == 'windows'
+            sh.raw template('header_windows.sh', build_dir: BUILD_DIR), pos: 0
+          else
+            sh.raw template('header_default.sh', build_dir: BUILD_DIR), pos: 0
+          end
         end
 
         def configure
