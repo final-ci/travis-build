@@ -103,6 +103,7 @@ travis_result() {
 travis_terminate() {
   ps -W | grep -v "WINPID" | sed s"/^[^0-9]*//" | grep -v /usr/bin/ps |
   awk -e '{if($2=="'$$'"){system("taskkill /F /PID "$4);}}' || true
+  echo $1 >~/build.sh.exit
   exit $1
 }
 
